@@ -76,6 +76,15 @@ if [ "$update_needed" = true ]; then
     sed -i "s|$current_dir|$internal_dir|g" "$nix_file"
     
     echo "Update complete."
+    
+    # Extract version for PR
+    # internal_dir format: Grayjay.Desktop-linux-x64-v14
+    version=$(echo "$internal_dir" | grep -oP 'v\d+$')
+    
+    if [ -n "$GITHUB_ENV" ]; then
+        echo "UPDATE_DETECTED=true" >> "$GITHUB_ENV"
+        echo "LATEST_VERSION=$version" >> "$GITHUB_ENV"
+    fi
 else
     echo "No update needed."
 fi
