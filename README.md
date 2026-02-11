@@ -13,6 +13,7 @@ A Nix flake containing custom packages for NixOS and Linux.
 | `grayjay` | Desktop client for Grayjay to stream and download video content |
 | `playtorrio` | Stream torrents directly |
 | `seanime` | Open-source media server for anime and manga |
+| `shonenx` | Anime Streaming Desktop App |
 | `stremio` | Open-source media player |
 | `surge` | Open-source media server for anime and manga (TUI) |
 | `thorium-avx` | Thorium Browser (AVX optimized) |
