@@ -34,4 +34,6 @@ rec {
   zed-editor-preview-bin = pkgs.callPackage ./zed-editor-preview-bin/default.nix { };
   zed-editor-preview-bin-fhs = zed-editor-preview-bin.fhs;
 
+  shonenx = pkgs.callPackage ./shonenx/default.nix { };
+
 } // (import ./thorium/default.nix { inherit pkgs; })
