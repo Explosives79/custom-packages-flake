@@ -24,6 +24,7 @@ appimageTools.wrapAppImage {
       libepoxy
       libva
       mesa
+      lz4
     ])
     ++ extraPkgs;
 
