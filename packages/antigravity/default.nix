@@ -3,6 +3,8 @@
 , fetchurl
 , autoPatchelfHook
 , makeWrapper
+, copyDesktopItems
+, makeDesktopItem
 , mesa
 , glib
 , nspr
@@ -47,6 +49,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [
     autoPatchelfHook
     makeWrapper
+    copyDesktopItems
   ];
 
   buildInputs = [
@@ -81,11 +84,25 @@ stdenv.mkDerivation (finalAttrs: {
     libsecret
   ];
 
+  desktopItems = [
+    (makeDesktopItem {
+      name = "antigravity";
+      desktopName = "Antigravity";
+      comment = "Google Antigravity — an internal Chrome/Electron-based development and onboarding tool";
+      icon = "antigravity";
+      exec = "antigravity %U";
+      categories = [ "Development" "IDE" ];
+      startupWMClass = "antigravity";
+    })
+  ];
+
   installPhase = ''
     runHook preInstall
 
     mkdir -p $out/share/antigravity
     cp -r * $out/share/antigravity
+
+    install -Dm0644 $out/share/antigravity/resources/app/resources/linux/code.png $out/share/pixmaps/antigravity.png
 
     mkdir -p $out/bin
     makeWrapper $out/share/antigravity/antigravity $out/bin/antigravity \
