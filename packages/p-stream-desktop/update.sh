@@ -17,10 +17,13 @@ CURRENT_VERSION=$(grep -oP 'version = "\K[^"]+' "$FILE")
 
 if [[ "$LATEST_VERSION" == "$CURRENT_VERSION" ]]; then
     echo "p-stream-desktop is already up-to-date: $CURRENT_VERSION"
+    echo "UPDATE_DETECTED=false" >> $GITHUB_ENV
     exit 0
 fi
 
 echo "Updating p-stream-desktop $CURRENT_VERSION -> $LATEST_VERSION..."
+echo "UPDATE_DETECTED=true" >> $GITHUB_ENV
+echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
 
 URL="https://github.com/$REPO/releases/download/$LATEST_VERSION/P-Stream-$LATEST_VERSION.AppImage"
 echo "Prefetching AppImage to calculate new SHA256 hash..."
