@@ -11,6 +11,7 @@ rec {
   seanime = pkgs.callPackage ./seanime/seanime-pkg.nix { };
   surge = pkgs.callPackage ./surge/default.nix { };
   stremio = pkgs.callPackage ./stremio/default.nix { };
+  p-stream-desktop = pkgs.callPackage ./p-stream-desktop/default.nix { };
 
   # Zed Editor
   zed-editor = pkgs.callPackage ./zed-editor/default.nix {
