@@ -24,7 +24,8 @@ echo "Updating p-stream-desktop $CURRENT_VERSION -> $LATEST_VERSION..."
 
 URL="https://github.com/$REPO/releases/download/$LATEST_VERSION/P-Stream-$LATEST_VERSION.AppImage"
 echo "Prefetching AppImage to calculate new SHA256 hash..."
-NEW_HASH=$(nix-prefetch-url --type sha256 --sri "$URL")
+RAW_HASH=$(nix-prefetch-url "$URL")
+NEW_HASH=$(nix-hash --type sha256 --to-sri "$RAW_HASH")
 
 if [[ -z "$NEW_HASH" ]]; then
     echo "Error: Failed to prefetch URL"
