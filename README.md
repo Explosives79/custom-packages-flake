@@ -7,10 +7,13 @@ A Nix flake containing custom packages for NixOS and Linux.
 | Package | Description |
 |---------|-------------|
 | `ab-download-manager` | A Download Manager that speeds up your downloads |
+| `antigravity` | Google Antigravity — an internal Chrome/Electron-based development and onboarding tool |
 | `anymex` | Anime Streaming App |
 | `better-control` | Simple control panel for Linux based on GTK |
 | `fladder` | A Simple Jellyfin Frontend built on top of Flutter |
 | `grayjay` | Desktop client for Grayjay to stream and download video content |
+| `mangayomi` | Free and open source application for reading manga and watching anime |
+| `p-stream-desktop` | A desktop application for p-stream |
 | `playtorrio` | Stream torrents directly |
 | `seanime` | Open-source media server for anime and manga |
 | `shonenx` | Anime Streaming Desktop App |
