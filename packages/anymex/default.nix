@@ -60,6 +60,10 @@ appimageTools.wrapAppImage {
       source "${makeWrapper}/nix-support/setup-hook"
       mkdir -p $out/share/applications
       cp ${appimageContents}/*.desktop $out/share/applications/
+      substituteInPlace $out/share/applications/*.desktop \
+        --replace-fail 'Exec=usr/bin/anymex' 'Exec=${pname}' || \
+      substituteInPlace $out/share/applications/*.desktop \
+        --replace-fail 'Exec=AppRun' 'Exec=${pname}'
       mkdir -p $out/share/pixmaps
       cp ${appimageContents}/*.png $out/share/pixmaps/
 
