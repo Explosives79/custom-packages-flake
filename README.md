@@ -12,6 +12,7 @@ A Nix flake containing custom packages for NixOS and Linux.
 | `better-control` | Simple control panel for Linux based on GTK |
 | `fladder` | A Simple Jellyfin Frontend built on top of Flutter |
 | `grayjay` | Desktop client for Grayjay to stream and download video content |
+| `hydralauncher` | Open source game launcher |
 | `mangayomi` | Free and open source application for reading manga and watching anime |
 | `p-stream-desktop` | A desktop application for p-stream |
 | `playtorrio` | Stream torrents directly |
