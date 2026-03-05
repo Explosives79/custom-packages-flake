@@ -19,7 +19,9 @@ appimageTools.wrapType2 {
     if [ -f ${appimageContents}/mangayomi.desktop ]; then
       install -m 444 -D ${appimageContents}/mangayomi.desktop $out/share/applications/mangayomi.desktop
       substituteInPlace $out/share/applications/mangayomi.desktop \
-        --replace 'Exec=AppRun' 'Exec=${pname}'
+        --replace-fail 'Exec=/usr/bin/mangayomi' 'Exec=${pname}' || \
+      substituteInPlace $out/share/applications/mangayomi.desktop \
+        --replace-fail 'Exec=AppRun' 'Exec=${pname}'
     fi
     
     if [ -f ${appimageContents}/mangayomi.png ]; then
