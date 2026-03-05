@@ -13,6 +13,7 @@ rec {
   surge = pkgs.callPackage ./surge/default.nix { };
   stremio = pkgs.callPackage ./stremio/default.nix { };
   p-stream-desktop = pkgs.callPackage ./p-stream-desktop/default.nix { };
+  hydralauncher = pkgs.callPackage ./hydralauncher/default.nix { };
 
   # Zed Editor
   zed-editor = pkgs.callPackage ./zed-editor/default.nix {
