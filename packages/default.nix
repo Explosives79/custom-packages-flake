@@ -7,6 +7,7 @@ rec {
   antigravity = pkgs.callPackage ./antigravity/default.nix { };
   anymex = pkgs.callPackage ./anymex/default.nix { };
   playtorrio = pkgs.callPackage ./playtorrio/default.nix { };
+  mangayomi = pkgs.callPackage ./mangayomi/default.nix { };
   grayjay = pkgs.callPackage ./grayjay/default.nix { };
   seanime = pkgs.callPackage ./seanime/seanime-pkg.nix { };
   surge = pkgs.callPackage ./surge/default.nix { };
