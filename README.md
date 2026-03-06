@@ -18,6 +18,7 @@ A Nix flake containing custom packages for NixOS and Linux.
 | `playtorrio` | Stream torrents directly |
 | `seanime` | Open-source media server for anime and manga |
 | `shonenx` | Anime Streaming Desktop App |
+| `sorayomi` | A free and open source manga reader for the desktop |
 | `stremio` | Open-source media player |
 | `surge` | Open-source media server for anime and manga (TUI) |
 | `thorium-avx` | Thorium Browser (AVX optimized) |
