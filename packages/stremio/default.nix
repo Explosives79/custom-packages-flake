@@ -109,8 +109,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   # Add to `gappsWrapperArgs` to avoid two layers of wrapping.
   preFixup = ''
     gappsWrapperArgs+=(
-      --prefix LD_LIBRARY_PATH : "${addDriverRunpath.driverLink}/lib" \
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libGL ]}" \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ addDriverRunpath.driverLink libGL ]}" \
       --prefix PATH : "${lib.makeBinPath [ nodejs ]}"
     )
   '';
