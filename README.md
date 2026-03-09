@@ -25,12 +25,6 @@ A Nix flake containing custom packages for NixOS and Linux.
 | `thorium-avx2` | Thorium Browser (AVX2 optimized) |
 | `thorium-sse3` | Thorium Browser (SSE3 optimized) |
 | `thorium-sse4` | Thorium Browser (SSE4 optimized) |
-| `zed-editor` | High-performance, multiplayer code editor (Source build) |
-| `zed-editor-bin` | High-performance, multiplayer code editor (Binary) |
-| `zed-editor-fhs` | Zed Editor (Source) wrapped in FHS environment |
-| `zed-editor-bin-fhs` | Zed Editor (Binary) wrapped in FHS environment |
-| `zed-editor-preview` | Zed Editor Preview (Source build) |
-| `zed-editor-preview-bin` | Zed Editor Preview (Binary) |
 
 ## Usage
 
