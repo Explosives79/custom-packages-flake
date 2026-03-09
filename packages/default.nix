@@ -15,30 +15,6 @@ rec {
   stremio = pkgs.callPackage ./stremio/default.nix { };
   p-stream-desktop = pkgs.callPackage ./p-stream-desktop/default.nix { };
   hydralauncher = pkgs.callPackage ./hydralauncher/default.nix { };
-
-  # Zed Editor
-  zed-editor = pkgs.callPackage ./zed-editor/default.nix {
-    rustPlatform = pkgs.makeRustPlatform {
-      cargo = pkgs.rust-bin.stable.latest.default;
-      rustc = pkgs.rust-bin.stable.latest.default;
-    };
-  };
-  zed-editor-fhs = zed-editor.fhs;
-
-  zed-editor-preview = pkgs.callPackage ./zed-editor-preview/default.nix {
-    rustPlatform = pkgs.makeRustPlatform {
-      cargo = pkgs.rust-bin.stable.latest.default;
-      rustc = pkgs.rust-bin.stable.latest.default;
-    };
-  };
-  zed-editor-preview-fhs = zed-editor-preview.fhs;
-
-  zed-editor-bin = pkgs.callPackage ./zed-editor-bin/default.nix { };
-  zed-editor-bin-fhs = zed-editor-bin.fhs;
-
-  zed-editor-preview-bin = pkgs.callPackage ./zed-editor-preview-bin/default.nix { };
-  zed-editor-preview-bin-fhs = zed-editor-preview-bin.fhs;
-
   shonenx = pkgs.callPackage ./shonenx/default.nix { };
 
 } // (import ./thorium/default.nix { inherit pkgs; })
