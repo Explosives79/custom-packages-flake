@@ -1,46 +1,97 @@
-{ fetchurl
-, appimageTools
-, lib
-, extraPkgs ? [ ]
-, ...
+{
+  lib,
+  fetchFromGitHub,
+  flutter335,
+  copyDesktopItems,
+  makeDesktopItem,
+
+  alsa-lib,
+  libdisplay-info,
+  libxpresent,
+  libxscrnsaver,
+  libepoxy,
+  mpv-unwrapped,
+
+  targetFlutterPlatform ? "linux",
+  baseUrl ? null,
 }:
+
 let
-  pname = "Fladder";
-  version = "0.10.2";
-  src = fetchurl {
-    url = "https://github.com/DonutWare/${pname}/releases/download/v${version}/${pname}-Linux-${version}.AppImage";
-    hash = "sha256-wQw+o8BmUtiAbMwfDzx2oTWFDIJPf2NIlsl+KMZGV98=";
-  };
-  appimageContents = appimageTools.extract {
-    inherit pname version src;
-  };
+  flutter = flutter335;
 in
-appimageTools.wrapAppImage {
-  inherit pname version;
-  src = appimageContents;
-  extraPkgs = pkgs:
-    (with pkgs; [
-      mpv
-      libepoxy
-      libva
-      mesa
-      lz4
-    ])
-    ++ extraPkgs;
 
-  extraInstallCommands = ''
-    mkdir -p $out/share/applications
-    cp ${appimageContents}/*.desktop $out/share/applications/
-    mkdir -p $out/share/pixmaps
-    cp ${appimageContents}/*.png $out/share/pixmaps/
-  '';
+flutter.buildFlutterApplication (finalAttrs: {
+  pname = "fladder";
+  version = "0.10.2";
 
-  meta = with lib; {
-    description = "A Simple Jellyfin Frontend built on top of Flutter.";
-    homepage = "https://github.com/DonutWare/Fladder";
-    platforms = with platforms; (intersectLists x86_64 linux);
-    license = with licenses; [ gpl3Only ];
-    mainProgram = pname;
-    sourceProvenance = with sourceTypes; [ binaryBytecode ];
+  src = fetchFromGitHub {
+    owner = "DonutWare";
+    repo = "Fladder";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-D2FFIBRWi66TRB4LkUWZu/jc+edVXo70FZDzGFh11Wk=";
   };
-}
+
+  inherit targetFlutterPlatform;
+
+  pubspecLock = lib.importJSON ./pubspec.lock.json;
+
+  gitHashes = lib.importJSON ./git-hashes.json;
+
+  nativeBuildInputs = lib.optionals (targetFlutterPlatform == "linux") [
+    copyDesktopItems
+  ];
+
+  buildInputs = [
+    alsa-lib
+    libdisplay-info
+    mpv-unwrapped
+    libxpresent
+    libxscrnsaver
+  ]
+  ++ lib.optionals (targetFlutterPlatform == "linux") [
+    libepoxy
+  ];
+
+  postInstall =
+    lib.optionalString (targetFlutterPlatform == "web") (
+      ''
+        sed -i 's;base href="/";base href="$out";' $out/index.html
+      ''
+      + lib.optionalString (baseUrl != null) ''
+        echo '{"baseUrl": "${baseUrl}"}' > $out/assets/config/config.json
+      ''
+    )
+    + lib.optionalString (targetFlutterPlatform == "linux") ''
+      # Install SVG icon
+      install -Dm644 icons/fladder_icon.svg \
+        $out/share/icons/hicolor/scalable/apps/fladder.svg
+    '';
+
+  desktopItems = lib.optionals (targetFlutterPlatform == "linux") [
+    (makeDesktopItem {
+      name = "fladder";
+      desktopName = "Fladder";
+      genericName = "Jellyfin Client";
+      exec = "Fladder";
+      icon = "fladder";
+      comment = "Simple Jellyfin Frontend built on top of Flutter";
+      categories = [
+        "AudioVideo"
+        "Video"
+        "Player"
+      ];
+    })
+  ];
+
+  passthru.updateScript = ./update.sh;
+
+  meta = {
+    description = "Simple Jellyfin Frontend built on top of Flutter";
+    homepage = "https://github.com/DonutWare/Fladder";
+    downloadPage = "https://github.com/DonutWare/Fladder/releases";
+    license = lib.licenses.gpl3Only;
+    maintainers = with lib.maintainers; [
+    ];
+    mainProgram = "Fladder";
+  };
+})
