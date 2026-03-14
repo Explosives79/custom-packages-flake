@@ -1,6 +1,6 @@
 # Fladder Flake
 
-This repository provides a Nix flake for [Fladder](https://github.com/DonutWare/Fladder), a simple Jellyfin frontend built with Flutter. It packages the official AppImage release for use with Nix/NixOS.
+This repository provides a Nix flake for [Fladder](https://github.com/DonutWare/Fladder), a simple Jellyfin frontend built with Flutter. It builds the application from source using Nix's Flutter build infrastructure.
 
 ## Usage
 
@@ -34,7 +34,7 @@ To add Fladder to your NixOS configuration, add this repository to your flake in
     custom-packages.url = "github:Rishabh5321/custom-packages-flake";
   };
   
-  outputs = { self, nixpkgs, fladder, ... }: {
+  outputs = { self, nixpkgs, custom-packages, ... }: {
     # ...
   };
 }
@@ -60,7 +60,7 @@ If you are using Home Manager:
 ```nix
 {
   home.packages = [
-    inputs.fladder.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.custom-packages.packages.${pkgs.stdenv.hostPlatform.system}.fladder
   ];
 }
 ```
@@ -70,7 +70,7 @@ If you are using Home Manager:
 To build the package locally from this repository:
 
 ```bash
-nix build
+nix build .#fladder
 ```
 
 The result will be in the `./result` directory.

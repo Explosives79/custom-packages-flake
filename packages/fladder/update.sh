@@ -1,54 +1,45 @@
-#!/usr/bin/env bash
-set -e
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p curl jq yq-go nix bash common-updater-scripts ripgrep
 
-# Fladder Update Script
-# Adapts logic from update/fladder-update.yaml
+set -eou pipefail
 
-CURRENT_VERSION=$(grep -oP 'version\s*=\s*"\K[^"]+' packages/fladder/default.nix || echo "0.0.0")
-echo "Current version: $CURRENT_VERSION"
+PACKAGE_DIR="$(realpath "$(dirname "$0")")"
+cd "$PACKAGE_DIR"
+while ! test -f flake.nix; do cd ..; done
+FLAKE_DIR="$PWD"
 
-echo "Fetching releases from GitHub API..."
-RELEASES=$(gh api repos/DonutWare/Fladder/releases)
+latestVersion=$(
+    list-git-tags --url=https://github.com/DonutWare/Fladder |
+    rg '^v(.*)' -r '$1' |
+    sort --version-sort |
+    tail -n1
+)
 
-LATEST_TAG=$(echo "$RELEASES" | jq -r '[.[] | select(.prerelease == false and .draft == false)][0].tag_name')
-LATEST_VERSION=$(echo "$LATEST_TAG" | sed 's/^v//')
+currentVersion=$(nix eval --raw ".#fladder.version")
 
-if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" == "null" ]; then
-    echo "Could not extract valid release tag."
-    exit 1
-fi
-
-echo "Latest version: $LATEST_VERSION"
-
-if [ "$CURRENT_VERSION" = "$LATEST_VERSION" ]; then
-    echo "Fladder is up-to-date."
-    echo "UPDATE_DETECTED=false" >> $GITHUB_ENV
+if [[ "$currentVersion" == "$latestVersion" ]]; then
+    echo "fladder is up-to-date: $currentVersion"
     exit 0
 fi
 
-echo "Update needed: $CURRENT_VERSION -> $LATEST_VERSION"
-echo "UPDATE_DETECTED=true" >> $GITHUB_ENV
-echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+echo "Updating fladder: $currentVersion -> $latestVersion"
 
-# Update version
-sed -i -E "s@(version\s*=\s*\")[^\"]+@\1${LATEST_VERSION}@" packages/fladder/default.nix
+# Update version in default.nix
+sed -i -E "s@(version\s*=\s*\")[^\"]+@\1${latestVersion}@" "$PACKAGE_DIR"/default.nix
 
-# Calculate Hash
-DOWNLOAD_URL="https://github.com/DonutWare/Fladder/releases/download/v${LATEST_VERSION}/Fladder-Linux-${LATEST_VERSION}.AppImage"
-echo "Download URL: $DOWNLOAD_URL"
+# Update src hash using nix-prefetch
+NEW_SRC_HASH=$(nix-prefetch-url --unpack "https://github.com/DonutWare/Fladder/archive/refs/tags/v${latestVersion}.tar.gz" 2>/dev/null | xargs nix hash convert --hash-algo sha256 --to sri)
+sed -i -E "s@(hash\s*=\s*\")[^\"]+@\1${NEW_SRC_HASH}@" "$PACKAGE_DIR"/default.nix
 
-TEMP_FILE=$(mktemp)
-curl -sL "$DOWNLOAD_URL" -o "$TEMP_FILE"
-NEW_HASH=$(nix hash file "$TEMP_FILE")
-rm -f "$TEMP_FILE"
+# Update pubspec.lock.json
+curl --fail --silent "https://raw.githubusercontent.com/DonutWare/Fladder/v${latestVersion}/pubspec.lock" | yq eval --output-format=json --prettyPrint >"$PACKAGE_DIR"/pubspec.lock.json
 
-if [ -z "$NEW_HASH" ]; then
-    echo "Failed to calculate hash."
-    exit 1
+# Update git-hashes.json (only if dart.fetchGitHashesScript is available)
+FETCH_SCRIPT=$(nix eval --raw ".#fladder.passthru.dart.fetchGitHashesScript" 2>/dev/null || true)
+if [[ -n "$FETCH_SCRIPT" ]]; then
+    $FETCH_SCRIPT --input "$PACKAGE_DIR"/pubspec.lock.json --output "$PACKAGE_DIR"/git-hashes.json
+else
+    echo "Warning: Could not find dart.fetchGitHashesScript, git-hashes.json not updated"
 fi
 
-echo "New Hash: $NEW_HASH"
-
-sed -i -E "s|(hash\s*=\s*\")[^\"]+(\";)|\1${NEW_HASH}\2|" packages/fladder/default.nix
-
-echo "Fladder updated."
+echo "fladder updated to $latestVersion"
