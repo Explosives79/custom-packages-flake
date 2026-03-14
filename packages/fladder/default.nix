@@ -1,19 +1,17 @@
-{
-  lib,
-  fetchFromGitHub,
-  flutter335,
-  copyDesktopItems,
-  makeDesktopItem,
-
-  alsa-lib,
-  libdisplay-info,
-  libxpresent,
-  libxscrnsaver,
-  libepoxy,
-  mpv-unwrapped,
-
-  targetFlutterPlatform ? "linux",
-  baseUrl ? null,
+{ lib
+, fetchFromGitHub
+, flutter335
+, copyDesktopItems
+, makeDesktopItem
+, alsa-lib
+, libdisplay-info
+, libxpresent
+, libxscrnsaver
+, libepoxy
+, mpv-unwrapped
+, targetFlutterPlatform ? "linux"
+, baseUrl ? null
+,
 }:
 
 let
@@ -53,14 +51,15 @@ flutter.buildFlutterApplication (finalAttrs: {
   ];
 
   postInstall =
-    lib.optionalString (targetFlutterPlatform == "web") (
-      ''
-        sed -i 's;base href="/";base href="$out";' $out/index.html
-      ''
-      + lib.optionalString (baseUrl != null) ''
-        echo '{"baseUrl": "${baseUrl}"}' > $out/assets/config/config.json
-      ''
-    )
+    lib.optionalString (targetFlutterPlatform == "web")
+      (
+        ''
+          sed -i 's;base href="/";base href="$out";' $out/index.html
+        ''
+        + lib.optionalString (baseUrl != null) ''
+          echo '{"baseUrl": "${baseUrl}"}' > $out/assets/config/config.json
+        ''
+      )
     + lib.optionalString (targetFlutterPlatform == "linux") ''
       # Install SVG icon
       install -Dm644 icons/fladder_icon.svg \
