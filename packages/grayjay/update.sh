@@ -1,90 +1,46 @@
-#!/usr/bin/env bash
-set -e
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p curl jq nix bash common-updater-scripts ripgrep
 
-# Grayjay Update Script
-# 
-# Since Grayjay uses a static URL for the latest zip, we must:
-# 1. Download the zip
-# 2. Calculate its hash
-# 3. Check the internal directory structure for versioning (e.g. v13)
-# 4. Update default.nix if either changes
+set -eou pipefail
 
-url="https://updater.grayjay.app/Apps/Grayjay.Desktop/Grayjay.Desktop-linux-x64.zip"
-nix_file="packages/grayjay/default.nix"
+PACKAGE_DIR="$(realpath "$(dirname "$0")")"
+cd "$PACKAGE_DIR"
+while ! test -f flake.nix; do cd ..; done
+FLAKE_DIR="$PWD"
 
-echo "Fetching latest Grayjay zip..."
-temp_dir=$(mktemp -d)
-trap 'rm -rf "$temp_dir"' EXIT
+# Grayjay uses numeric tags (e.g. "17") on GitLab
+latestVersion=$(
+    curl --fail --silent "https://gitlab.futo.org/api/v4/projects/videostreaming%2FGrayjay%2EDesktop/repository/tags?per_page=100" |
+    jq -r '.[].name' |
+    rg '^\d+$' |
+    sort --version-sort |
+    tail -n1
+)
 
-zip_file="$temp_dir/grayjay.zip"
-curl -L -s -o "$zip_file" "$url"
+currentVersion=$(nix eval --raw ".#grayjay.version")
 
-# Calculate hash
-echo "Calculating hash..."
-current_hash=$(grep -oP 'sha256\s*=\s*"\K[^"]+' "$nix_file" || echo "")
-new_hash=$(nix hash file "$zip_file" --type sha256) # SRI or base32 depending on version, usually SRI now but we might want base32 to match
-
-# nix hash file often returns SRI (sha256-...). 
-# The file currently uses base32 (081...). Let's convert to base32 for consistency if the current one is base32.
-if [[ "$current_hash" != sha256-* ]] && [[ "$new_hash" == sha256-* ]]; then
-    # Convert SRI to base32
-    new_hash=$(nix hash to-base32 "$new_hash")
+if [[ "$currentVersion" == "$latestVersion" ]]; then
+    echo "grayjay is up-to-date: $currentVersion"
+    exit 0
 fi
 
-echo "Current hash: $current_hash"
-echo "New hash:     $new_hash"
+echo "Updating grayjay: $currentVersion -> $latestVersion"
 
-# Check internal directory version
-echo "Checking internal version..."
-unzip -q -l "$zip_file" > "$temp_dir/list.txt"
-# Look for the main directory pattern: Grayjay.Desktop-linux-x64-v[NUMBER]
-# We grep for lines ending in /Grayjay to find the path
-internal_dir=$(grep -oP 'Grayjay\.Desktop-linux-x64-v\d+(?=/Grayjay)' "$temp_dir/list.txt" | head -n 1)
+# Update version in default.nix
+sed -i -E "s@(version\s*=\s*\")[^\"]+@\1${latestVersion}@" "$PACKAGE_DIR"/default.nix
 
-if [ -z "$internal_dir" ]; then
-    echo "Error: Could not determine internal versioned directory from zip."
-    exit 1
+# Update src hash
+NEW_SRC_HASH=$(nix-prefetch-url --unpack "https://gitlab.futo.org/api/v4/projects/videostreaming%2FGrayjay%2EDesktop/repository/archive.tar.gz?sha=refs%2Ftags%2F${latestVersion}" 2>/dev/null | xargs nix hash convert --hash-algo sha256 --to sri)
+sed -i -E "0,/hash\s*=\s*\"[^\"]+/{s@(hash\s*=\s*\")[^\"]+@\1${NEW_SRC_HASH}@}" "$PACKAGE_DIR"/default.nix
+
+# Update npmDepsHash by invalidating it so nix rebuilds it
+# (set to empty so the build error will show the correct hash — manual step)
+echo "Note: npmDepsHash may need manual update if frontend dependencies changed."
+
+# Set environment variables for the GitHub Actions workflow
+if [ -n "${GITHUB_ENV:-}" ]; then
+    echo "UPDATE_DETECTED=true" >> "$GITHUB_ENV"
+    echo "LATEST_VERSION=$latestVersion" >> "$GITHUB_ENV"
 fi
 
-echo "Internal dir: $internal_dir"
-
-# Get current internal dir from nix file
-current_dir=$(grep -oP 'Grayjay\.Desktop-linux-x64-v\d+(?=/Grayjay")' "$nix_file" | head -n 1)
-echo "Current dir:  $current_dir"
-
-
-update_needed=false
-
-if [ "$current_hash" != "$new_hash" ]; then
-    echo "Hash mismatch. Update needed."
-    update_needed=true
-fi
-
-if [ "$current_dir" != "$internal_dir" ]; then
-    echo "Directory version mismatch. Update needed."
-    update_needed=true
-fi
-
-if [ "$update_needed" = true ]; then
-    echo "Updating $nix_file..."
-    
-    # Update hash
-    sed -i "s|$current_hash|$new_hash|" "$nix_file"
-    
-    # Update directory version
-    # Use | as delimiter to avoid path issues, though this is just a directory name
-    sed -i "s|$current_dir|$internal_dir|g" "$nix_file"
-    
-    echo "Update complete."
-    
-    # Extract version for PR
-    # internal_dir format: Grayjay.Desktop-linux-x64-v14
-    version=$(echo "$internal_dir" | grep -oP 'v\d+$')
-    
-    if [ -n "$GITHUB_ENV" ]; then
-        echo "UPDATE_DETECTED=true" >> "$GITHUB_ENV"
-        echo "LATEST_VERSION=$version" >> "$GITHUB_ENV"
-    fi
-else
-    echo "No update needed."
-fi
+echo "grayjay updated to $latestVersion"
