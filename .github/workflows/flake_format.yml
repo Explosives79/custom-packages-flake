@@ -48,6 +48,7 @@ jobs:
         title: 'Auto Lint and Format'
         body: 'This is an auto-generated PR with linting and formatting changes.'
         branch: auto-lint-format
+        base: main
         delete-branch: true
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
         labels: automated chore
