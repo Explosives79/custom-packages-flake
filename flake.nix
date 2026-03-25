@@ -29,6 +29,7 @@
             gnused
             curl
             nix-prefetch-github
+            yq
           ];
         };
       });
