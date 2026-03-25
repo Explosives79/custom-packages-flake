@@ -21,6 +21,18 @@
         import ./packages/default.nix { inherit pkgs; }
       );
 
+      devShells = forAllSystems ({ pkgs, ... }: {
+        default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            gh
+            jq
+            gnused
+            curl
+            nix-prefetch-github
+          ];
+        };
+      });
+
       nixosModules.seanime = { ... }: {
         imports = [
           ({ ... }: {
