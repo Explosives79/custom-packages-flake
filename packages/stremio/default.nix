@@ -60,20 +60,15 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ];
 
   postPatch = ''
-    set -x
     substituteInPlace src/config.rs \
       --replace-fail "@serverjs@" "${placeholder "out"}/share/stremio/server.js"
 
-    ls -d $cargoDepsCopy/*appindicator* || true
-    ls -d $cargoDepsCopy/*xkbcommon* || true
-    
-    substituteInPlace $cargoDepsCopy/libappindicator-sys-*/src/lib.rs \
-      --replace-fail "libayatana-appindicator3.so.1" "${libayatana-appindicator}/lib/libayatana-appindicator3.so.1" || true
-    substituteInPlace $cargoDepsCopy/xkbcommon-dl-*/src/lib.rs \
-      --replace-fail "libxkbcommon.so.0" "${libxkbcommon}/lib/libxkbcommon.so.0" || true
-    substituteInPlace $cargoDepsCopy/xkbcommon-dl-*/src/x11.rs \
-      --replace-fail "libxkbcommon-x11.so.0" "${libxkbcommon}/lib/libxkbcommon-x11.so.0" || true
-    set +x
+    substituteInPlace $cargoDepsCopy/*/libappindicator-sys-*/src/lib.rs \
+      --replace-fail "libayatana-appindicator3.so.1" "${libayatana-appindicator}/lib/libayatana-appindicator3.so.1"
+    substituteInPlace $cargoDepsCopy/*/xkbcommon-dl-*/src/lib.rs \
+      --replace-fail "libxkbcommon.so.0" "${libxkbcommon}/lib/libxkbcommon.so.0"
+    substituteInPlace $cargoDepsCopy/*/xkbcommon-dl-*/src/x11.rs \
+      --replace-fail "libxkbcommon-x11.so.0" "${libxkbcommon}/lib/libxkbcommon-x11.so.0"
   '';
 
   # Don't download CEF during build
@@ -114,7 +109,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   # Add to `gappsWrapperArgs` to avoid two layers of wrapping.
   preFixup = ''
     gappsWrapperArgs+=(
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ addDriverRunpath.driverLink libGL ]}" \
+      --prefix LD_LIBRARY_PATH : "${addDriverRunpath.driverLink}/lib" \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libGL ]}" \
       --prefix PATH : "${lib.makeBinPath [ nodejs ]}"
     )
   '';
@@ -136,7 +132,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
       # server.js is unfree
       unfree
     ];
-    maintainers = with lib.maintainers; [ thunze ];
+    maintainers = with lib.maintainers; [ ];
     platforms = lib.platforms.linux;
     mainProgram = "stremio";
   };
