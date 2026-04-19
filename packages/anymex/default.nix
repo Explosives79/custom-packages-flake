@@ -5,6 +5,11 @@
 , makeWrapper
 , glib-networking
 , gst_all_1
+, cacert
+, adwaita-icon-theme
+, shared-mime-info
+, gsettings-desktop-schemas
+, gtk3
 , ...
 }:
 let
@@ -27,12 +32,23 @@ appimageTools.wrapAppImage {
       libepoxy
       libva
       mesa
+      libglvnd
+      libxkbcommon
+      at-spi2-atk
       webkitgtk_4_1
       gtk3
       libsoup_3
       glib-networking
       openssl
       gsettings-desktop-schemas
+      adwaita-icon-theme
+      shared-mime-info
+      dconf
+      libsecret
+      libnotify
+      nss
+      nspr
+      cacert
       gst_all_1.gstreamer
       gst_all_1.gst-plugins-base
       gst_all_1.gst-plugins-good
@@ -69,7 +85,13 @@ appimageTools.wrapAppImage {
 
       wrapProgram $out/bin/${pname} \
         --set GIO_EXTRA_MODULES "${glib-networking}/lib/gio/modules" \
-        --prefix GST_PLUGIN_SYSTEM_PATH_1_0 : "${gstPluginPaths}"
+        --prefix GST_PLUGIN_SYSTEM_PATH_1_0 : "${gstPluginPaths}" \
+        --set WEBKIT_DISABLE_COMPOSITING_MODE "1" \
+        --set SSL_CERT_FILE "${cacert}/etc/ssl/certs/ca-bundle.crt" \
+        --prefix XDG_DATA_DIRS : "${gsettings-desktop-schemas}/share/gsettings-data-schemas/${gsettings-desktop-schemas.name}" \
+        --prefix XDG_DATA_DIRS : "${gtk3}/share/gsettings-data-schemas/${gtk3.name}" \
+        --prefix XDG_DATA_DIRS : "${adwaita-icon-theme}/share" \
+        --prefix XDG_DATA_DIRS : "${shared-mime-info}/share"
     '';
 
   meta = with lib; {
