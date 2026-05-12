@@ -10,16 +10,20 @@ A Nix flake containing custom packages for NixOS and Linux.
 | `antigravity` | Google Antigravity — an internal Chrome/Electron-based development and onboarding tool |
 | `anymex` | Anime Streaming App |
 | `better-control` | Simple control panel for Linux based on GTK |
+| `brave-origin` | Brave browser origin - browser without brave bloat |
 | `fladder` | A Simple Jellyfin Frontend built on top of Flutter |
 | `grayjay` | Desktop client for Grayjay to stream and download video content |
+| `helium` | Helium browser a browser without chrome bloat |
 | `hydralauncher` | Open source game launcher |
 | `mangayomi` | Free and open source application for reading manga and watching anime |
-| `playtorrio` | Stream torrents directly |
+| `opera` | Opera Browser |
+| `playtorrio` | Stream torrents directly (Archived) |
+| `playtorrio-v2` | Stream torrents directly |
 | `seanime` | Open-source media server for anime and manga |
 | `shonenx` | Anime Streaming Desktop App |
+| `skystream` | Just a streaming app |
 | `sorayomi` | A free and open source manga reader for the desktop |
 | `stremio` | Open-source media player |
-| `surge` | Open-source media server for anime and manga (TUI) |
 | `thorium-avx` | Thorium Browser (AVX optimized) |
 | `thorium-avx2` | Thorium Browser (AVX2 optimized) |
 | `thorium-sse3` | Thorium Browser (SSE3 optimized) |
