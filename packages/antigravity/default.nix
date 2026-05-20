@@ -38,12 +38,12 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "antigravity";
-  version = "1.23.2-4781536860569600";
+  version = "2.0.1-4861014005645312";
 
   # https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/1.13.3-4533425205018624/linux-x64/Antigravity.tar.gz
   src = fetchurl {
-    url = "https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/${finalAttrs.version}/linux-x64/Antigravity.tar.gz";
-    hash = "sha256-UjKkBI/0+hVoXZqYG6T7pXPil/PvybdvY455S693VyU=";
+    url = "https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/${finalAttrs.version}/linux-x64/${if lib.versionAtLeast finalAttrs.version "2.0.0" then "Antigravity%20IDE.tar.gz" else "Antigravity.tar.gz"}";
+    hash = "sha256-dHFjqjqK+6SzFvl8QLSnXKRzall2ikFs0eiB5z7DHvk=";
   };
 
   nativeBuildInputs = [
@@ -96,6 +96,8 @@ stdenv.mkDerivation (finalAttrs: {
     })
   ];
 
+  sourceRoot = if lib.versionAtLeast finalAttrs.version "2.0.0" then "Antigravity IDE" else ".";
+
   installPhase = ''
     runHook preInstall
 
@@ -105,7 +107,7 @@ stdenv.mkDerivation (finalAttrs: {
     install -Dm0644 $out/share/antigravity/resources/app/resources/linux/code.png $out/share/pixmaps/antigravity.png
 
     mkdir -p $out/bin
-    makeWrapper $out/share/antigravity/antigravity $out/bin/antigravity \
+    makeWrapper $out/share/antigravity/${if lib.versionAtLeast finalAttrs.version "2.0.0" then "antigravity-ide" else "antigravity"} $out/bin/antigravity \
       --set ELECTRON_OZONE_PLATFORM_HINT auto \
       --add-flags "--enable-features=UseOzonePlatform --ozone-platform-hint=auto --enable-wayland-ime" \
       --unset NODE_OPTIONS \

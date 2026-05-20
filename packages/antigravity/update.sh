@@ -15,12 +15,13 @@ fi
 
 # Check latest version
 echo "Checking latest version"
-latest_rev=$(
+latest_url=$(
   curl -sL --compressed https://antigravity.google/ \
   | grep -Eo 'main-[^"]+\.js' | head -n1 \
   | xargs -I{} curl -sL --compressed https://antigravity.google/{} \
-  | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+' | head -n1
+  | grep -oE "https://edgedl[^\"']+linux-x64[^\"']+" | head -n1
 )
+latest_rev=$(echo "$latest_url" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+-[0-9]+")
 echo "Latest commit: $latest_rev"
 
 current_rev=$(grep -oP 'version\s*=\s*"\K[^"]+' "$package_file" | head -n1)
