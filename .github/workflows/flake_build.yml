@@ -80,8 +80,21 @@ jobs:
           name: rishabh5321
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      # Only run flake check once, maybe on the first package or in a separate job
-      # To keep it simple, we can skip it here or run it if needed.
-      # Since we just want to build, let's just build.
       - name: Build Nix Flake
         run: nix build .#${{ matrix.package }} --print-build-logs
+
+  all_builds_passed:
+    name: All Builds Passed
+    needs: [nix_check_build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check build matrix status
+        run: |
+          if [[ "${{ needs.nix_check_build.result }}" == "success" ]]; then
+            echo "All package builds passed successfully!"
+            exit 0
+          else
+            echo "One or more package builds failed or were cancelled."
+            exit 1
+          fi
