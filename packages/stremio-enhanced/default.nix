@@ -21,18 +21,15 @@ appimageTools.wrapType2 {
   ];
 
   extraInstallCommands = ''
-    mv $out/bin/${pname}-${version} $out/bin/${pname} || true
-    
-    if [ -f ${appimageContents}/stremio.desktop ]; then
-      install -m 444 -D ${appimageContents}/stremio.desktop $out/share/applications/${pname}.desktop
+    if [ -f ${appimageContents}/stremio-enhanced.desktop ]; then
+      install -m 444 -D ${appimageContents}/stremio-enhanced.desktop $out/share/applications/${pname}.desktop
       substituteInPlace $out/share/applications/${pname}.desktop \
-        --replace-fail 'Exec=stremio' 'Exec=${pname}' \
-        --replace-fail 'Icon=stremio' 'Icon=${pname}' \
-        --replace-fail 'Name=Stremio' 'Name=Stremio Enhanced'
+        --replace-fail 'Exec=AppRun --no-sandbox' 'Exec=${pname}' \
+        --replace-fail 'Icon=stremio-enhanced' 'Icon=${pname}'
     fi
 
-    if [ -f ${appimageContents}/stremio.png ]; then
-      install -m 444 -D ${appimageContents}/stremio.png \
+    if [ -f ${appimageContents}/stremio-enhanced.png ]; then
+      install -m 444 -D ${appimageContents}/stremio-enhanced.png \
         $out/share/icons/hicolor/512x512/apps/${pname}.png
     fi
   '';
