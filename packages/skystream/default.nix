@@ -19,6 +19,7 @@
 , icu
 , openssl
 , jdk
+, libsecret
 ,
 }:
 
@@ -48,11 +49,11 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "skystream";
-  version = "2.3.2";
+  version = "2.5.0";
 
   src = fetchurl {
     url = "https://github.com/akashdh11/skystream/releases/download/v${version}/skystream-linux-x64-v${version}.tar.gz";
-    hash = "sha256-eUCan802D9ZgT0cNI9N6r/ayX2CsRVm/0shL3MNpirs=";
+    hash = "sha256-ZN8gEmAOYUQofxFQhMrHSbp9Flqu2RqFsPuGKOGbElE=";
   };
 
   nativeBuildInputs = [
@@ -76,6 +77,7 @@ stdenv.mkDerivation rec {
     icu74
     openssl
     jdk
+    libsecret
     stdenv.cc.cc.lib
   ];
 
