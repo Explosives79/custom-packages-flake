@@ -7,10 +7,8 @@ set -e
 CURRENT_VERSION=$(grep -oP 'version\s*=\s*"\K[^"]+' packages/ab-download-manager/default.nix || echo "0.0.0")
 echo "Current version: $CURRENT_VERSION"
 
-echo "Fetching releases from GitHub API..."
-RELEASES=$(gh api repos/amir1376/ab-download-manager/releases)
-
-LATEST_TAG=$(echo "$RELEASES" | jq -r '[.[] | select(.prerelease == false and .draft == false)][0].tag_name')
+echo "Fetching latest release from GitHub API..."
+LATEST_TAG=$(gh api repos/amir1376/ab-download-manager/releases/latest --jq '.tag_name')
 LATEST_VERSION=$(echo "$LATEST_TAG" | sed 's/^v//')
 
 if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" == "null" ]; then
