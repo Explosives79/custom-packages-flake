@@ -19,7 +19,7 @@ let
   };
   autoExternalPlayerPlugin = fetchurl {
     url = "https://gist.githubusercontent.com/AJV009/5e53080b453f9deafb0d250fbc2e8666/raw/ac94e676f674d3eccf3c41e6e001f27519fff96e/auto-external-player.plugin.js";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    hash = "sha256-TyMchiMK6abumqEHw8p7+9oSq7cq1qD1rkNKGFdP9nQ=";
   };
 in
 appimageTools.wrapType2 {
