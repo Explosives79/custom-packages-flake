@@ -7,15 +7,19 @@
 }:
 let
   pname = "stremio-enhanced";
-  version = "1.1.4";
+  version = "1.1.5";
   src = fetchurl {
     url = "https://github.com/REVENGE977/stremio-enhanced/releases/download/v${version}/Stremio.Enhanced-${version}.AppImage";
-    hash = "sha256-FD3a5URIY8DB/OJCo518W28BmPsC+AYxdCTotA5MaWs=";
+    hash = "sha256-ATy2ekUWGI3s+CtQemQ2hXOe7etk56hXHWarWC607GA=";
   };
   appimageContents = appimageTools.extract { inherit pname version src; };
   serverJs = fetchurl {
     url = "https://dl.strem.io/server/v4.20.17/desktop/server.js";
     hash = "sha256-Vno5e7EbeIVxvxdQ/QXdeJJ/l77Ayd3qptnMHszuOSI=";
+  };
+  autoExternalPlayerPlugin = fetchurl {
+    url = "https://gist.githubusercontent.com/AJV009/5e53080b453f9deafb0d250fbc2e8666/raw/ac94e676f674d3eccf3c41e6e001f27519fff96e/auto-external-player.plugin.js";
+    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 in
 appimageTools.wrapType2 {
@@ -26,7 +30,7 @@ appimageTools.wrapType2 {
       ffmpeg
     ];
   extraInstallCommands = ''
-    # Desktop entry
+
     if [ -f ${appimageContents}/stremio-enhanced.desktop ]; then
       install -m 444 -D ${appimageContents}/stremio-enhanced.desktop \
         $out/share/applications/${pname}.desktop
@@ -35,22 +39,24 @@ appimageTools.wrapType2 {
         --replace-fail 'Icon=stremio-enhanced' 'Icon=${pname}'
     fi
 
-    # Icon
+
     if [ -f ${appimageContents}/stremio-enhanced.png ]; then
       install -m 444 -D ${appimageContents}/stremio-enhanced.png \
         $out/share/icons/hicolor/512x512/apps/${pname}.png
     fi
 
-    # Install server.js into the store (like the official package does)
+
     install -m 444 -D ${serverJs} \
       $out/share/${pname}/streamingserver/server.js
+    install -m 444 -D ${autoExternalPlayerPlugin} \
+      $out/share/${pname}/plugins/auto-external-player.plugin.js
 
-    # On first run, copy server.js to the user config dir that the app expects.
-    # Uses the same pattern as the official stremio package's postInstall,
-    # but adapted for an AppImage that can't be patched at source level.
+
     wrapProgram $out/bin/${pname} \
       --run 'mkdir -p "$HOME/.config/stremio-enhanced/streamingserver"' \
-      --run 'test -f "$HOME/.config/stremio-enhanced/streamingserver/server.js" || cp '"${serverJs}"' "$HOME/.config/stremio-enhanced/streamingserver/server.js"'
+      --run 'test -f "$HOME/.config/stremio-enhanced/streamingserver/server.js" || cp '"${serverJs}"' "$HOME/.config/stremio-enhanced/streamingserver/server.js"' \
+      --run 'mkdir -p "$HOME/.config/stremio-enhanced/plugins"' \
+      --run 'test -f "$HOME/.config/stremio-enhanced/plugins/auto-external-player.plugin.js" || cp '"${autoExternalPlayerPlugin}"' "$HOME/.config/stremio-enhanced/plugins/auto-external-player.plugin.js"'
   '';
   meta = with lib; {
     description = "Stremio Enhanced - Stremio with enhanced features";
