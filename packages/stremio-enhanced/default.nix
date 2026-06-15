@@ -7,10 +7,10 @@
 }:
 let
   pname = "stremio-enhanced";
-  version = "1.1.5";
+  version = "1.1.4";
   src = fetchurl {
     url = "https://github.com/REVENGE977/stremio-enhanced/releases/download/v${version}/Stremio.Enhanced-${version}.AppImage";
-    hash = "sha256-ATy2ekUWGI3s+CtQemQ2hXOe7etk56hXHWarWC607GA=";
+    hash = "sha256-FD3a5URIY8DB/OJCo518W28BmPsC+AYxdCTotA5MaWs=";
   };
   appimageContents = appimageTools.extract { inherit pname version src; };
   serverJs = fetchurl {
